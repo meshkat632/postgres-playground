@@ -1,28 +1,14 @@
-provider "aws" {
-  region = var.region
+data "external" "get_ip_addres_using_shell_dev" {
+  program = ["bash","scripts/get_ip_port.sh"]
+  query = {
+    p_env = "dev"
+  }
 }
 
-data "aws_ami" "ubuntu" {
-  most_recent = true
-
-  filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
-  owners = ["099720109477"] # Canonical
+output "ip_address_for_dev" {
+  value = data.external.get_ip_addres_using_shell_dev.result.ip_address
 }
 
-resource "aws_instance" "ubuntu" {
-  ami           = data.aws_ami.ubuntu.id
-  instance_type = var.instance_type
-
-  tags = {
-    Name = var.instance_name
-  }
+output "port_num_for_dev" {
+  value = data.external.get_ip_addres_using_shell_dev.result.port_num
 }
